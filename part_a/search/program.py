@@ -59,7 +59,7 @@ def search(
     reverse_place_actions = []
     list_of_coord = []
     filled_goal_state = 1
-    while filled_goal_state < len(goal_state_row):
+    while filled_goal_state < len(goal_state_row) and len(sub_places) < 4:
         if (current_block_row.r > 0 and current_block_row.up(1) not in blue):
             list_of_coord.append(current_block_row.up(1))
         if (current_block_row.r < BOARD_N and current_block_row.down(1) not in blue):
@@ -71,7 +71,20 @@ def search(
         
     # choose the expansion with closest mt distance, until all empty blocks is filled
     # if mt distance is indifferent, choose in the order of Up -> Down -> Left -> Right
-        next_place = min_mt_dis(list_of_coord, goal_state_row[filled_goal_state])
+        if filled_goal_state < len(goal_state_row):
+            next_place = min_mt_dis(list_of_coord, goal_state_row[filled_goal_state])
+        # if all empty blocks are filled and still need to expand remaining required blocks, choose the one with closest mt distance with the initial block
+        else:
+            # if all of the goal state positions are filled in but still need to expand for placeaction, 
+            # choose the next moves that are closest mt distance with the initial position
+            min_arr = []
+            next_place_temp_arr = []
+            for coord in list_of_coord:
+                next_place_temp, min = min_mt_dis_extra(red, coord)
+                next_place_temp_arr.append(next_place_temp)
+                min_arr.append(min)
+            next_place = next_place_temp_arr[min_arr.index(min(min_arr))]
+        
         sub_places.append(next_place)
         list_of_coord.clear()
         current_block_row = next_place
@@ -82,8 +95,6 @@ def search(
 
         if manhatan_distance(next_place, goal_state_row[filled_goal_state]) == 0:
             filled_goal_state+=1
-
-    # if all empty blocks are filled and still need to expand remaining required blocks, choose the one with closest mt distance with the initial block
             
     # connect lines to the starting red points if there are paths to all lines
     # calculate the mt distance of possible expansions can choose the closest one
@@ -121,5 +132,12 @@ def min_mt_dis(list_of_coord, goal: Coord) -> int:
         distances.append(manhatan_distance(coord, goal))
     index = distances.index(min(distances))
     return list_of_coord(index)
+
+def min_mt_dis_extra(list_of_coord, goal: Coord) -> int:
+    distances = []
+    for coord in list_of_coord:
+        distances.append(manhatan_distance(coord, goal))
+    index = distances.index(min(distances))
+    return list_of_coord(index), min(distances)
 
 
