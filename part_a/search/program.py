@@ -73,6 +73,7 @@ def search(
     # if mt distance is indifferent, choose in the order of Up -> Down -> Left -> Right
         next_place = min_mt_dis(list_of_coord, goal_state_row[filled_goal_state])
         sub_places.append(next_place)
+        list_of_coord.clear()
         current_block_row = next_place
 
         if len(sub_places) == 4:
@@ -81,7 +82,7 @@ def search(
 
         if manhatan_distance(next_place, goal_state_row[filled_goal_state]) == 0:
             filled_goal_state+=1
-            
+
     # if all empty blocks are filled and still need to expand remaining required blocks, choose the one with closest mt distance with the initial block
             
     # connect lines to the starting red points if there are paths to all lines
