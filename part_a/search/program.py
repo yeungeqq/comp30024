@@ -34,11 +34,13 @@ def search(
     # separate red and blue into two lists
     red = []
     blue = []
+    not_expandable_block = []
     for coordination in board:
         if board[coordination] is PlayerColor.RED:
             red.append(coordination)
         else:
             blue.append(coordination)
+    not_expandable_block.append(red, blue)
 
     # find out the goal state - all coords that need to be filled to eliminate target
     goal_state_row = []
@@ -107,7 +109,7 @@ def min_mt_dis_extra(list_of_coord, goal: Coord) -> int:
     return list_of_coord(index), min(distances)
 
 # function to search and place actions to connect all the goal state positions for row and columns
-def goal_state_search(goal_state_arr, red, blue):
+def goal_state_search(goal_state_arr, red, blue, not_expandable_block):
     # find out all possible PlaceActions to fulfill the goal state from the target
     # start from the top or from the left, calculate the mt distance between possible expansions and next empty block
     current_block_row = goal_state_arr[0]
@@ -116,13 +118,13 @@ def goal_state_search(goal_state_arr, red, blue):
     list_of_coord = []
     filled_goal_state = 1
     while filled_goal_state < len(goal_state_arr) and len(sub_places) < 4:
-            if (current_block_row.r > 0 and current_block_row.up(1) not in blue):
+            if (current_block_row.r > 0 and current_block_row.up(1) not in not_expandable_block):
                 list_of_coord.append(current_block_row.up(1))
-            if (current_block_row.r < BOARD_N and current_block_row.down(1) not in blue):
+            if (current_block_row.r < BOARD_N and current_block_row.down(1) not in not_expandable_block):
                 list_of_coord.append(current_block_row.down(1))
-            if (current_block_row.c > 0 and current_block_row.left(1) not in blue):
+            if (current_block_row.c > 0 and current_block_row.left(1) not in not_expandable_block):
                 list_of_coord.append(current_block_row.left(1))
-            if (current_block_row.c < BOARD_N and current_block_row.right(1) not in blue):
+            if (current_block_row.c < BOARD_N and current_block_row.right(1) not in not_expandable_block):
                 list_of_coord.append(current_block_row.right(1))
             
         # choose the expansion with closest mt distance, until all empty blocks is filled
